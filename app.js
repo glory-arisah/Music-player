@@ -1,4 +1,5 @@
-const main = document.querySelector('.main__wrapper')
+const main = document.querySelector('.musicplayer__wrapper')
+const loader = document.querySelector('.loader')
 const prev = document.querySelector('.prev')
 const next = document.querySelector('.next')
 const playPause = document.querySelector('.play-pause')
@@ -85,4 +86,18 @@ playBtn.addEventListener('click', () => {
   isSongPlaying()  
 })
 
-setSong(songIndex)
+window.addEventListener('load', () => {
+  let state = document.readyState
+
+  if (state === 'interactive') {
+      console.log(state)
+
+    main.style.visibility = 'hidden'
+  } else if (state === 'complete') {
+    setTimeout(() => {
+      main.style.visibility = 'visible'
+      loader.style.visibility = 'hidden'
+    }, 1000)
+  }
+  setSong(songIndex)
+})
