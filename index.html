@@ -5,21 +5,33 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://kit.fontawesome.com/d3d7199f73.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
   <link rel="stylesheet" href="style.css">
   <title>Music player</title>
 </head>
 <body>
+  <div class="bg-image"></div>
   <div class="loader" id="loader"></div>
   <main class="musicplayer__wrapper">
     <!-- song thumbnail -->
-    <div class="song__img--container"></div>
+    <div class="song__img--container">
+    </div>
     <!-- audio file -->
     <p class="song--info">
       <span class="artist"></span> - <span class="song--title"></span>
     </p>
-    <audio class="audio" data-playing=false></audio>
+    <!-- progress bar -->
+    <div class="progress-bar__container">
+      <div class="progress-bar"></div>
+    </div>
+    <div class="audio__container">
+      <audio class="audio"></audio>
+    </div>
     <!-- song controls -->
     <div class="song--controls">
+      <p class="controls">
+        <i class="fa-solid fa-shuffle"></i>
+      </p>
       <p class="controls">
         <i class="fa-solid fa-backward-step prev"></i>
       </p>
@@ -29,7 +41,6 @@
       <p class="controls">
         <i class="fa-solid fa-forward-step next"></i>
       </p>
-      
     </div>
   </main>
   <script src="./app.js"></script>
