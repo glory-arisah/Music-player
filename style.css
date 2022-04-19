@@ -8,9 +8,12 @@ body {
   display: grid;
   height: 100vh;
   place-items: center;
+  visibility: hidden;
+  background-color: rgb(231, 231, 243);
 }
+
 .bg-image {
-  filter: blur(16px);
+  filter: blur(3px);
   position: absolute;
   height: 100%;
   background-repeat: no-repeat;
@@ -22,13 +25,15 @@ body {
 .loader {
   z-index: 1;
   position: absolute;
+  height: 100%;
+  width: 100%;
   padding: 1rem;
   animation: spin 1500ms linear infinite;
   height: 6rem;
   width: 6rem;
   border-radius: 50%;
-  border: 13px solid rgb(238, 226, 226);
-  border-top: 13px solid rgb(137, 137, 199);
+  border: 13px solid rgb(235, 159, 159);
+  border-top: 13px solid rgb(184, 54, 54);
   visibility: visible;
   left: 0;
   right: 0;
@@ -52,19 +57,18 @@ body {
   border: 1px solid rgb(221, 214, 214);
   border-radius: 1.5rem;
   justify-content: space-between;
-  z-index: 2;
   background: rgba(120, 120, 120, 0.5);
 }
 
 .progress-bar__container {
-  height: .6rem;
+  height: .5rem;
   width: 90%;
   background-color: transparent;
   border: 1px solid rgb(156, 155, 155);
   border-radius: 5px;
 }
 .progress-bar {
-  background-color: rgb(209, 192, 156);
+  background-color: rgb(37, 24, 10);
   height: 100%;
   width: 0%;
   transition: width 100ms linear;
@@ -105,6 +109,12 @@ body {
 
 .song--controls p:nth-child(1) {
   position: absolute;
-  z-index: 100;
   left: 15%;
+}
+.song--controls p:last-of-type {
+  position: absolute;
+  right: 15%;
+}
+.song--controls p:nth-child(1).clicked, .song--controls p:last-of-type.clicked {
+  color: white;
 }

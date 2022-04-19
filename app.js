@@ -1,10 +1,13 @@
-// extract song metadata
+// EXTRACT SONG METADATA
 const jsmediatags = window.jsmediatags
 
+// DOM ELEMENTS
 const main = document.querySelector('.musicplayer__wrapper')
 const bgImage = document.querySelector('.bg-image')
 const prev = document.querySelector('.prev')
 const next = document.querySelector('.next')
+const shuffle = document.querySelector('.fa-shuffle')
+const repeat = document.querySelector('.fa-repeat')
 const playPause = document.querySelector('.play-pause')
 const playBtn = document.querySelector('.play-btn')
 const audio = document.querySelector('.audio')
@@ -47,7 +50,7 @@ const songs = [
   './songs/to-be-loved.mp3',
 ]
 
-// GETS SONG THUMBNAIL AND SONG FILE
+// GETS SONG FILE AND EXTRACT ITS METADATA
 const setSong = index => {
   audio.src = songs[index - 1]
   // song metadata
@@ -66,7 +69,7 @@ const setSong = index => {
       bgImage.style.backgroundImage = `url(data:${pictureFormat};base64,${window.btoa(base64String)})`
     }
   })
-  // save last song played to localStorage
+  // save last played song to localStorage
   storeLastSong(index)
 }
 
@@ -98,20 +101,49 @@ const prevBtnAction = () => {
   playSong()
 }
 
+// SHUFFLE SONGS
+const shuffleSong = () => {
+  let randomNum = Math.floor(Math.random() * songs.length)
+  if (shuffle.parentElement.classList.contains('clicked')) {
+    for (let i = 0; i <= randomNum; i++) {
+      if (randomNum === i && randomNum === (i+1)) {
+        randomNum++
+      }
+    }
+    songIndex = randomNum
+    setSong(songIndex)
+    playSong()
+  } else {
+    nextBtnAction()
+  }
+}
+
+// SHUFFLE OR REPEAT
+const shuffleOrRepeat = () => {
+  if (repeat.parentElement.classList.contains('clicked')) {
+    setSong(songIndex)
+    playSong()
+  } else {
+    shuffleSong()
+  }
+}
+
 // EVENT LISTENERS
 prev.addEventListener('click', prevBtnAction)
-next.addEventListener('click', nextBtnAction)
+next.addEventListener('click', shuffleOrRepeat)
+shuffle.addEventListener('click', () => {
+  shuffle.parentElement.classList.toggle('clicked')
+})
+repeat.addEventListener('click', () => {
+  repeat.parentElement.classList.toggle('clicked')
+})
 playBtn.addEventListener('click', () => {
   let isPlaying = playPause.classList.contains('play')
-  if (isPlaying) {
-    pauseSong()
-  } else {
-    playSong()
-  }
+  isPlaying ? pauseSong() : playSong()
 })
 
 // PLAY NEXT SONG IF PREVIOUS SONG HAS ENDED
-audio.addEventListener('ended', nextBtnAction)
+audio.addEventListener('ended', shuffleOrRepeat)
 
 // UPDATE THE PROGRESS BAR AS SONG PLAYS
 audio.addEventListener('timeupdate', (e) => {
@@ -136,6 +168,7 @@ window.addEventListener('load', () => {
   } else if (state === 'complete') {
     setTimeout(() => {
       main.style.visibility = 'visible'
+      document.body.style.visibility = 'visible'
       document.querySelector('.loader').style.visibility = 'hidden'
     }, 1000)
   }
