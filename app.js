@@ -11,9 +11,10 @@ const repeat = document.querySelector('.fa-repeat')
 const playPause = document.querySelector('.play-pause')
 const playBtn = document.querySelector('.play-btn')
 const audio = document.querySelector('.audio')
-const artist = document.querySelector('.artist')
+const artist = document.querySelector('.song--artist')
 const songTitle = document.querySelector('.song--title')
 const songImageContainer = document.querySelector('.song__img--container')
+const progressBar = document.querySelector('.progress-bar')
 
 // GLOBAL INDEX TO KEEP TRACK OF CURRENT SONG
 let songIndex = localStorage.getItem('id') ? localStorage.getItem('id') : 1
@@ -22,16 +23,25 @@ let songIndex = localStorage.getItem('id') ? localStorage.getItem('id') : 1
 const songs = [
   './songs/2become1.mp3',
   './songs/amazing.mp3',
+  './songs/bang-my-head.mp3',
+  './songs/born-to-die.mp3',
   './songs/close.mp3',
+  './songs/desperado.mp3',
+  './songs/dont-let-me-go.mp3',
   './songs/dreams-come-true.mp3',
+  './songs/drive.mp3',
+  './songs/edge-of-glory.mp3',
+  './songs/elastic-heart.mp3',
   './songs/heal.mp3',
   './songs/i-wanna-grow-old-with-you.mp3',
   './songs/imaginary-diva.mp3',
   './songs/in-this-life.mp3',
+  './songs/incomplete.mp3',
   './songs/is-there-someone-else.mp3',
   './songs/its-you.mp3',
   './songs/juice.mp3',
   './songs/just-cant-get-enough.mp3',
+  './songs/love-in-the-dark.mp3',
   './songs/love-takes-two.mp3',
   './songs/lovesong.mp3',
   './songs/miss-you-nights.mp3',
@@ -42,12 +52,19 @@ const songs = [
   './songs/puzzle-of-my-heart.mp3',
   './songs/queen-of-my-heart.mp3',
   './songs/remedy.mp3',
+  './songs/rolling-in-the-deep.mp3',
   './songs/rolling-stone.mp3',
   './songs/shes-back.mp3',
   './songs/thats-where-you-find-love.mp3',
   './songs/the-hills.mp3',
   './songs/the-night-is-still-young.mp3',
   './songs/to-be-loved.mp3',
+  './songs/truth-hurts.mp3',
+  './songs/unbreakable.mp3',
+  './songs/us-against-the-world.mp3',
+  './songs/when-we-were-young.mp3',
+  './songs/world-of-our-own.mp3',
+  './songs/written-in-the-stars.mp3'
 ]
 
 // GETS SONG FILE AND EXTRACT ITS METADATA
@@ -65,12 +82,58 @@ const setSong = index => {
       for (let i = 0; i < pictureData.length; i++) {
         base64String += String.fromCharCode(pictureData[i])
       }
-      songImageContainer.style.backgroundImage = `url(data:${pictureFormat};base64,${window.btoa(base64String)})`
-      bgImage.style.backgroundImage = `url(data:${pictureFormat};base64,${window.btoa(base64String)})`
+      let songImg = `data:${pictureFormat};base64,${window.btoa(base64String)}`
+
+      // change color of progress bar based on brightness of song thumbnail
+      getImageBrightness(songImg, (brightness) => {
+        let imageBrightness = brightness
+        if (imageBrightness > 113) {
+          progressBar.style.backgroundColor = 'rgb(53, 53, 53)'
+        } else {
+          progressBar.style.backgroundColor = 'rgb(235, 235, 235)'
+        }
+      })
+      // set the page background to song thumbnail
+      songImageContainer.style.backgroundImage = `url(${songImg})`
+      bgImage.style.backgroundImage = `url(${songImg})`
     }
   })
   // save last played song to localStorage
   storeLastSong(index)
+}
+
+// DETERMINE BRIGHTNESS OF SONG THUMBNAIL
+function getImageBrightness(image, cb) {
+  let img = document.createElement('img')
+  img.src = image
+  img.style.display = 'none'
+  let colorSum = 0
+
+  img.addEventListener('load', () => {
+    // create canvas
+    let canvas = document.createElement('canvas')
+    canvas.width = img.width
+    canvas.height = img.height
+
+    let ctx = canvas.getContext('2d')
+    ctx.drawImage(img, 0, 0)
+
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    let data = imageData.data
+    let red, green, blue, average
+
+    for (let i = 0, len = data.length; i < len; i+=4) {
+      red = data[i]
+      green = data[i+1]
+      blue = data[i+2]
+      average = Math.floor((red+green+blue)/3)
+      colorSum += average
+    }
+
+    let brightness = Math.floor(colorSum / (canvas.width*canvas.height))
+
+    cb(brightness)
+  })
 }
 
 // PLAY AND PAUSE SONG FUNCTIONS
@@ -96,21 +159,35 @@ const nextBtnAction = () => {
 }
 
 const prevBtnAction = () => {
+  // replay song on previous btn click if song is still starting
+  if (audio.currentTime > 8) {
+    setSong(songIndex)
+    playSong()
+    return
+  }
   songIndex === 1 ? songIndex = songs.length : songIndex--
   setSong(songIndex)
   playSong()
+  
+}
+
+// UNIQUE CONSECUTIVE SONG INDEX GENERATOR
+let lastNumber
+const genRandNumber = () => {
+  let randomNum = Math.floor(Math.random() * songs.length + 1)
+
+  if (randomNum === lastNumber) {
+    genRandNumber()
+  }
+  return randomNum
 }
 
 // SHUFFLE SONGS
 const shuffleSong = () => {
-  let randomNum = Math.floor(Math.random() * songs.length)
+  const shuffledIndex = genRandNumber()
+  lastNumber = shuffledIndex
   if (shuffle.parentElement.classList.contains('clicked')) {
-    for (let i = 0; i <= randomNum; i++) {
-      if (randomNum === i && randomNum === (i+1)) {
-        randomNum++
-      }
-    }
-    songIndex = randomNum
+    songIndex = shuffledIndex
     setSong(songIndex)
     playSong()
   } else {
@@ -145,7 +222,7 @@ playBtn.addEventListener('click', () => {
 // PLAY NEXT SONG IF PREVIOUS SONG HAS ENDED
 audio.addEventListener('ended', shuffleOrRepeat)
 
-// UPDATE THE PROGRESS BAR AS SONG PLAYS
+// UPDATE THE PROGRESS BAR WIDTH AS SONG PLAYS
 audio.addEventListener('timeupdate', (e) => {
   const { currentTime, duration } = e.currentTarget
   const progress = (currentTime / duration) * 100
